@@ -18,11 +18,18 @@
     overflow: hidden;
     margin: 0;
     transform-origin: bottom center;
-    transition: transform 150ms ease, box-shadow 150ms ease;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    cursor: grab;
 }
 
 .card:not(:first-child) {
     margin-left: -70px;
+}
+
+.card.dragging {
+    cursor: grabbing;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+    transition: none;
 }
 
 .card-image {
