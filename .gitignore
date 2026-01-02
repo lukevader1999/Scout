@@ -35,6 +35,7 @@ logs/
 tmp/
 temp/
 *.tmp
+*.parcel-cache
 
 # Package manager locks (optional - uncomment if needed)
 # package-lock.json
