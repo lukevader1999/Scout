@@ -1,11 +1,32 @@
+#cardsContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0;
+    padding: 24px;
+    height: 260px;
+}
+
 .card {
-    border: 1px solid #ccc;
+    position: relative;
+    width: 120px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    background: #fff;
     overflow: hidden;
-    width: 300px;
-    margin: 20px;
+    margin: 0;
+    transform-origin: bottom center;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card:not(:first-child) {
+    margin-left: -70px;
 }
 
 .card-image {
     width: 100%;
     height: auto;
+    display: block;
 }
