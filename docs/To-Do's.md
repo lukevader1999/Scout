@@ -1,0 +1,1 @@
+Rewrite card rendering to be able to select and highlight crads and to only be able to drag a so selected show
