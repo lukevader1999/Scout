@@ -6,6 +6,7 @@ playerCount
 playerToMakeATurn
 activeShow
 roundsPlayedCounter
+playerState
 
 ## Player State
 hand

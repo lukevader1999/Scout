@@ -1,36 +1,23 @@
-const cardIds = [
-  "110", "12", "13", "14", "15", "16", "17", "18", "19",
-  "210", "23", "24", "25", "26", "27", "28", "29",
-  "310", "34", "35", "36", "37", "38", "39",
-  "410", "45", "46", "47", "48", "49",
-  "510", "56", "57", "58", "59",
-  "610", "67", "68", "69",
-  "710", "78", "79",
-  "810", "89",
-  "910"
-]
-
-function renderCards(cardIds) {
-  const cardsContainer = document.getElementById("cardsContainer");
+export function renderCards(elementID, cards) {
+  const cardsContainer = document.getElementById(elementID);
   if (!cardsContainer) {
     console.error("cardsContainer not found");
     return;
   }
 
-  const total = cardIds.length;
-  const maxSpread = 40; // total angular spread in degrees
-  const angleStep = total > 1 ? maxSpread / (total - 1) : 0;
-  const startAngle = -maxSpread / 2;
-
   cardsContainer.innerHTML = "";
-  cardIds.forEach((cardId, index) => {
+  cards.forEach((card, index) => {
     const wrapper = document.createElement("div");
     wrapper.className = "card";
     wrapper.style.zIndex = `${index + 1}`;
 
     const img = document.createElement("img");
-    img.src = imageUrls[cardId];
+    img.src = imageUrls[card.id];
     img.className = "card-image";
+
+    if (card.rotated) {
+      img.classList.add("rotated")
+    }
 
     wrapper.append(img);
     cardsContainer.appendChild(wrapper);
@@ -123,4 +110,4 @@ const imageUrls = {
   "910": new URL("../assets/images/cards/raw/910.jpg", import.meta.url).href,
 };
 
-renderCards(cardIds.slice(0,7));
+//renderCards("cardsContainer", ["110", "12", "13", "14", "15", "16", "17", "18", "19"]);

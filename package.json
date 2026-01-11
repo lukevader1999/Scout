@@ -13,6 +13,7 @@
     "boardgame.io": "^0.50.2"
   },
   "devDependencies": {
-    "parcel": "^2.16.3"
+    "parcel": "^2.16.3",
+    "process": "^0.11.10"
   }
 }
