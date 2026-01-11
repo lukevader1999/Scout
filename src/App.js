@@ -13,7 +13,11 @@ class ScoutClient {
     }
 
     update(state) {
-        renderCards("cardsContainer", state.G.playerHands[0])
+        const activeShow = state?.G?.activeShow
+        if (Array.isArray(activeShow)) {
+            renderCards("activeShowContainer", activeShow)
+        }
+        renderCards("cardContainer", state.G.playerHands[0])
     }
 
 }

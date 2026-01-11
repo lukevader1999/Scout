@@ -4,6 +4,7 @@ export function renderCards(elementID, cards) {
     console.error("cardsContainer not found");
     return;
   }
+  cardsContainer.className = "cardsContainer"
 
   cardsContainer.innerHTML = "";
   cards.forEach((card, index) => {
