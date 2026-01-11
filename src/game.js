@@ -18,8 +18,7 @@ export const Scout = {
       if (!showIsValid(G, playerID, startIndex, endIndex)){
         return INVALID_MOVE
       }
-      let hand = G.playerHands[playerID]
-      let show = hand.slice(startIndex, endIndex+1)
+      let show = G.playerHands[playerID].slice(startIndex, endIndex+1)
       G.activeShow = show
       G.playerHands[playerID].splice(startIndex, endIndex - startIndex + 1)
     }
@@ -27,16 +26,30 @@ export const Scout = {
 }
 
 function getActiveNumber(card){
-  if (!rotated){
+  if (!card.rotated){
       return Number(card.id.substring(0,1))
   }
-  if (id.length == 2){
+  if (card.id.length == 2){
     return Number(card.id.substring(1,2))
   }
   return Number(card.id.substring(1,3))
 }
 
 function showIsValid(G, playerID, startIndex, endIndex){
-  //TO-DO: Implement real logic
+  let show = G.playerHands[playerID].slice(startIndex, endIndex+1).map(card => getActiveNumber(card))
+  if (show.length == 1){
+    return true
+  }
+  const diff = show[1] - show[0]
+  if (![-1, 0, 1].includes(diff)){
+    return false
+  }
+  for (let i=1; i<show.length; i++){
+    const firstValue = show[i-1]
+    const secondValue = show[i]
+    if (!(secondValue - firstValue) == diff){
+      return false
+    }
+  }
   return true
 }
