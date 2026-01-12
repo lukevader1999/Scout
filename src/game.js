@@ -24,6 +24,16 @@ export const Scout = {
       }
       G.activeShow = show
       G.playerHands[playerID].splice(startIndex, endIndex - startIndex + 1)
+    },
+
+    scout: ({G, playerID}, leftRight, rotate, insertIndex) => {
+      let scoutedCardIndex = leftRight == "l" ? 0 : -1
+      let scoutedCard = G.activeShow[scoutedCardIndex]
+      if (rotate) {
+        scoutedCard.rotated = !scoutedCard.rotated
+      }
+      G.activeShow.splice(scoutedCardIndex, 1)
+      G.playerHands[playerID].splice(insertIndex, 0, scoutedCard)
     }
   }
 }
@@ -50,7 +60,7 @@ function showIsValid(G, playerID, startIndex, endIndex){
   for (let i=1; i<show.length; i++){
     const firstValue = show[i-1]
     const secondValue = show[i]
-    if (!(secondValue - firstValue) == diff){
+    if ((secondValue - firstValue) !== diff){
       return false
     }
   }
