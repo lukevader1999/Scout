@@ -10,7 +10,7 @@ export const Scout = {
 
   turn: {
     minMoves: 1,
-    maxMoves: 1
+    maxMoves: 2
   },
 
   moves: {

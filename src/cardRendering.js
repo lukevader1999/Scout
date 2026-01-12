@@ -19,9 +19,9 @@ export function renderCards(containerElementId, cards, options = {}) {
       img.classList.add("rotated")
     }
 
-    // Mark preview cards so caller can style/identify them
+    // Mark preview cards so caller can style/identify them; highlight scouted preview card
     if (card._preview) {
-      wrapper.classList.add('preview-card');
+      wrapper.classList.add('preview-card', 'highlight');
       wrapper.dataset.preview = 'true';
     }
 

@@ -15,6 +15,7 @@ class ScoutClient {
         this.latestState = null;
         this.awaitingShowSelection = false; // waiting for user to click activeShow card after pressing Scout
         this.scoutingMode = false; // true after a valid activeShow card was selected
+        this.pendingActiveSelection = null; // index of an activeShow card selected before pressing Scout
         this.scoutedSide = null; // 'l' or 'r'
         this.scoutedIndex = null; // index within activeShow selected
         this.scoutedCard = null; // preview copy of the scouted card
@@ -47,7 +48,18 @@ class ScoutClient {
         const scoutButton = document.getElementById('scoutButton');
         if (scoutButton) {
             scoutButton.addEventListener('click', () => {
-                // Enable selecting a card from active show
+                // If the user already selected a valid active-show card, start scouting from it
+                if (this.pendingActiveSelection !== null && Array.isArray(this.latestState?.G?.activeShow)) {
+                    const idx = this.pendingActiveSelection;
+                    const activeShow = this.latestState.G.activeShow;
+                    const lastIndex = activeShow.length - 1;
+                    if (idx === 0 || idx === lastIndex) {
+                        this.startScoutingFromIndex(idx, activeShow);
+                        return;
+                    }
+                }
+
+                // Otherwise enable selecting a card from active show
                 this.awaitingShowSelection = true;
                 this.scoutingMode = false;
                 console.log('Click the leftmost or rightmost card in the active show to scout');
@@ -66,55 +78,45 @@ class ScoutClient {
         if (Array.isArray(activeShow)) {
             renderCards("activeShowContainer", activeShow, {
                 onClick: (card, index, wrapper) => {
-                    // If user pressed the Scout button and is awaiting a selection
+                    const lastIndex = activeShow.length - 1;
+
+                    // If not in awaiting/selecting or scouting mode, treat this click as a pre-selection
                     if (!this.awaitingShowSelection && !this.scoutingMode) {
-                        // default behavior: toggle highlight
+                        // allow pre-select only for leftmost/rightmost cards
+                        if (index === 0 || index === lastIndex) {
+                            this.pendingActiveSelection = index;
+                            // clear existing highlights and highlight the selected active-show card
+                            const container = document.getElementById('activeShowContainer');
+                            if (container) {
+                                container.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
+                                wrapper.classList.add('highlight');
+                            }
+                            console.log('Active-show card selected. Press Scout to preview and insert.');
+                            return;
+                        }
+
+                        // otherwise behave like a normal toggle
                         wrapper.classList.toggle('highlight');
                         return;
                     }
 
-                    // Only leftmost or rightmost card can be scouted in game logic
-                    const lastIndex = activeShow.length - 1;
+                    // If user pressed the Scout button and is awaiting a selection (or is already scouting), start scouting immediately
                     if (index !== 0 && index !== lastIndex) {
                         console.log('Only the leftmost or rightmost card can be scouted.');
                         return;
                     }
 
-                    // prepare preview state
-                    this.awaitingShowSelection = false;
-                    this.scoutingMode = true;
-                    this.scoutedIndex = index;
-                    this.scoutedSide = (index === 0) ? 'l' : 'r';
-                    // clone card for local preview (don't mutate server state)
-                    this.scoutedCard = JSON.parse(JSON.stringify(activeShow[index]));
-                    this.previewRotate = !!this.scoutedCard.rotated;
-
-                    // default insert position: end of hand
-                    const playerHand = state.G.playerHands[currentPlayer] || [];
-                    this.previewInsertIndex = playerHand.length;
-
-                    // highlight the selected card in the active show
-                    // first clear existing highlights
-                    const container = document.getElementById('activeShowContainer');
-                    if (container) {
-                        container.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
-                        wrapper.classList.add('highlight');
-                    }
-
-                    // render preview immediately
-                    this.renderPreview();
+                    this.startScoutingFromIndex(index, activeShow);
                 }
             })
         }
 
-        // Render player's hand (base view)
-        renderCards("cardContainer", state.G.playerHands[currentPlayer]);
-
-        // If scouting mode active, also render preview container (kept in sync by renderPreview)
+        // Render player's hand or preview in-place (preview replaces the hand view)
         if (this.scoutingMode) {
             this.renderPreview();
         } else {
-            // clear preview container when not scouting
+            renderCards("cardContainer", state.G.playerHands[currentPlayer]);
+            // clear any preview container remnants
             const preview = document.getElementById('previewContainer');
             if (preview) preview.innerHTML = '';
         }
@@ -137,7 +139,8 @@ class ScoutClient {
 
         const previewHand = [...playerHand.slice(0, this.previewInsertIndex), previewCard, ...playerHand.slice(this.previewInsertIndex)];
 
-        renderCards('previewContainer', previewHand, {
+        // Render preview in the same container as the hand so it appears in-place
+        renderCards('cardContainer', previewHand, {
             onClick: (card, index, wrapper) => {
                 // clicking a slot updates the insert index (if clicking preview card, keep it as that index)
                 // The preview array contains the inserted card itself, so find its index
@@ -150,6 +153,10 @@ class ScoutClient {
                 this.renderPreview();
             }
         });
+
+        // clear the separate preview container if present
+        const previewEl = document.getElementById('previewContainer');
+        if (previewEl) previewEl.innerHTML = '';
     }
 
     onKeyDown(e) {
@@ -189,8 +196,10 @@ class ScoutClient {
             this.scoutedSide = null;
             this.previewInsertIndex = 0;
             this.previewRotate = false;
-            const preview = document.getElementById('previewContainer');
-            if (preview) preview.innerHTML = '';
+            this.pendingActiveSelection = null;
+            // clear in-place preview (cardContainer will be re-rendered on next update)
+            const preview = document.getElementById('cardContainer');
+            if (preview) preview.querySelectorAll('.preview-card').forEach(el => el.remove());
             e.preventDefault();
             return;
         }
@@ -199,13 +208,42 @@ class ScoutClient {
             this.scoutingMode = false;
             this.awaitingShowSelection = false;
             this.scoutedCard = null;
-            const preview = document.getElementById('previewContainer');
-            if (preview) preview.innerHTML = '';
+            this.pendingActiveSelection = null;
+            // clear any in-place preview highlights
             const container = document.getElementById('activeShowContainer');
             if (container) container.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
             e.preventDefault();
             return;
         }
+    }
+
+    startScoutingFromIndex(index, activeShow) {
+        // prepare preview state from the given index
+        this.awaitingShowSelection = false;
+        this.scoutingMode = true;
+        this.scoutedIndex = index;
+        this.scoutedSide = (index === 0) ? 'l' : 'r';
+        this.pendingActiveSelection = null;
+        // clone card for local preview (don't mutate server state)
+        this.scoutedCard = JSON.parse(JSON.stringify(activeShow[index]));
+        this.previewRotate = !!this.scoutedCard.rotated;
+
+        // default insert position: end of hand
+        const currentPlayer = Number(this.latestState?.ctx?.currentPlayer ?? 0);
+        const playerHand = this.latestState?.G?.playerHands[currentPlayer] || [];
+        this.previewInsertIndex = playerHand.length;
+
+        // highlight the selected card in the active show
+        const container = document.getElementById('activeShowContainer');
+        if (container) {
+            container.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
+            // find and highlight the clicked index element if possible
+            const elems = container.querySelectorAll('.card');
+            if (elems && elems[index]) elems[index].classList.add('highlight');
+        }
+
+        // render preview immediately
+        this.renderPreview();
     }
 
 }
