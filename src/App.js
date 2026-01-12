@@ -16,6 +16,7 @@ class ScoutClient {
         this.awaitingShowSelection = false; // waiting for user to click activeShow card after pressing Scout
         this.scoutingMode = false; // true after a valid activeShow card was selected
         this.pendingActiveSelection = null; // index of an activeShow card selected before pressing Scout
+        this.prevCurrentPlayer = null;
         this.scoutedSide = null; // 'l' or 'r'
         this.scoutedIndex = null; // index within activeShow selected
         this.scoutedCard = null; // preview copy of the scouted card
@@ -67,12 +68,49 @@ class ScoutClient {
         }
     }
 
+    cancelScouting() {
+        this.scoutingMode = false;
+        this.awaitingShowSelection = false;
+        this.pendingActiveSelection = null;
+        this.scoutedCard = null;
+        this.scoutedIndex = null;
+        this.scoutedSide = null;
+        this.previewInsertIndex = 0;
+        this.previewRotate = false;
+
+        // clear any preview elements or highlights in the DOM
+        const cardContainer = document.getElementById('cardContainer');
+        if (cardContainer) {
+            // remove preview-card elements if any
+            cardContainer.querySelectorAll('.preview-card').forEach(el => el.remove());
+            // remove any leftover highlights on the real hand (they will be re-rendered)
+            cardContainer.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
+        }
+        const active = document.getElementById('activeShowContainer');
+        if (active) active.querySelectorAll('.card').forEach(el => el.classList.remove('highlight'));
+    }
+
     update(state) {
         // Keep latest state for UI handlers
         this.latestState = state;
 
         const activeShow = state?.G?.activeShow
         const currentPlayer = Number(state?.ctx?.currentPlayer ?? 0)
+
+        // If the turn changed or the activeShow changed (e.g. another player scouted),
+        // cancel any in-progress local scouting preview so clicks return to normal.
+        if (this.prevCurrentPlayer !== null && this.prevCurrentPlayer !== currentPlayer) {
+            if (this.scoutingMode || this.awaitingShowSelection || this.pendingActiveSelection !== null) {
+                this.cancelScouting();
+            }
+        }
+
+        if (this.scoutingMode) {
+            // If activeShow no longer contains the card we were previewing, cancel preview.
+            if (!Array.isArray(activeShow) || !activeShow.find(c => c.id === this.scoutedCard?.id && (!!c.rotated) === (!!this.scoutedCard?.rotated))) {
+                this.cancelScouting();
+            }
+        }
 
         // activeShow: render with custom click handler to handle selection when scouting
         if (Array.isArray(activeShow)) {
@@ -120,6 +158,8 @@ class ScoutClient {
             const preview = document.getElementById('previewContainer');
             if (preview) preview.innerHTML = '';
         }
+
+        this.prevCurrentPlayer = currentPlayer;
     }
 
     renderPreview() {
