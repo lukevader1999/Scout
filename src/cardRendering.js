@@ -1,12 +1,15 @@
 export function renderCards(containerElementId, cards) {
   const cardsContainer = document.getElementById(containerElementId);
+  if (!cardsContainer) return;
 
-  cardsContainer.className = "cardsContainer"
+  cardsContainer.className = "cardsContainer";
+  cardsContainer.innerHTML = "";
 
   cards.forEach((card, index) => {
     const wrapper = document.createElement("div");
     wrapper.className = "card";
     wrapper.style.zIndex = `${index + 1}`;
+    wrapper.dataset.index = String(index);
 
     const img = document.createElement("img");
     img.src = imageUrls[card.id];
@@ -18,6 +21,10 @@ export function renderCards(containerElementId, cards) {
 
     wrapper.append(img);
     cardsContainer.appendChild(wrapper);
+
+    wrapper.addEventListener('click', (e) => {
+      wrapper.classList.toggle('highlight');
+    });
   });
 }
 
