@@ -10,6 +10,7 @@ export function renderCards(containerElementId, cards) {
     wrapper.className = "card";
     wrapper.style.zIndex = `${index + 1}`;
     wrapper.dataset.index = String(index);
+    wrapper.dataset.card = card
 
     const img = document.createElement("img");
     img.src = imageUrls[card.id];
