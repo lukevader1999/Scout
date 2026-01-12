@@ -19,6 +19,9 @@ export const Scout = {
         return INVALID_MOVE
       }
       let show = G.playerHands[playerID].slice(startIndex, endIndex+1)
+      if (!showIsBetter(show, G.activeShow)){
+        return INVALID_MOVE
+      }
       G.activeShow = show
       G.playerHands[playerID].splice(startIndex, endIndex - startIndex + 1)
     }
@@ -52,4 +55,50 @@ function showIsValid(G, playerID, startIndex, endIndex){
     }
   }
   return true
+}
+
+function showIsBetter(newShow, oldShow){
+  //Überprüfung unterschiedlicher Längen
+  if (!Array.isArray(oldShow)) {
+    return true
+  }
+  if (newShow.length > oldShow.length) {
+    return true
+  }
+  if (newShow.length < oldShow.length) {
+    return false
+  }
+
+  //Umwandeln von Card-Objects in Nummern
+  let numbersNew = newShow.map(card => getActiveNumber(card))
+  let numbersOld = oldShow.map(card => getActiveNumber(card))
+  
+  //Spezialfall Länge 1
+  if (newShow.length == 1){
+    if (numbersNew[0] > numbersOld[0]) {
+      return true
+    }
+    return false
+  }
+
+  //Überprüfen unterschiedlicher Showarten
+  const diffNew = numbersNew[1] - numbersNew[0]
+  const diffOld = numbersOld[1] - numbersOld[0]
+
+  if (diffNew == 0 && diffOld != 0) {
+    return true
+  }
+  if (diffNew != 0 && diffOld == 0) {
+    return false
+  }
+
+  //Hier: Gleiche Länge und gleiche Showart
+  const maxNew = Math.max(...numbersNew)
+  const maxOld = Math.max(...numbersOld)
+
+  if (maxNew > maxOld) {
+    return true
+  }
+
+  return false
 }
