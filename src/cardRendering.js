@@ -1,12 +1,8 @@
-export function renderCards(elementID, cards) {
-  const cardsContainer = document.getElementById(elementID);
-  if (!cardsContainer) {
-    console.error("cardsContainer not found");
-    return;
-  }
+export function renderCards(containerElementId, cards) {
+  const cardsContainer = document.getElementById(containerElementId);
+
   cardsContainer.className = "cardsContainer"
 
-  cardsContainer.innerHTML = "";
   cards.forEach((card, index) => {
     const wrapper = document.createElement("div");
     wrapper.className = "card";
@@ -22,44 +18,7 @@ export function renderCards(elementID, cards) {
 
     wrapper.append(img);
     cardsContainer.appendChild(wrapper);
-
-    attachDrag(wrapper, index + 1);
   });
-}
-
-function attachDrag(cardEl, baseZ) {
-  let startX = 0;
-  let startY = 0;
-
-  const onMove = (event) => {
-    const dx = event.clientX - startX;
-    const dy = event.clientY - startY;
-    cardEl.style.transform = `translate(${dx}px, ${dy}px)`;
-  };
-
-  const onUp = (event) => {
-    cardEl.releasePointerCapture(event.pointerId);
-    cardEl.removeEventListener("pointermove", onMove);
-    cardEl.removeEventListener("pointerup", onUp);
-    cardEl.removeEventListener("pointercancel", onUp);
-    cardEl.classList.remove("dragging");
-    cardEl.style.transform = "";
-    cardEl.style.zIndex = `${baseZ}`;
-  };
-
-  const onDown = (event) => {
-    event.preventDefault();
-    startX = event.clientX;
-    startY = event.clientY;
-    cardEl.classList.add("dragging");
-    cardEl.style.zIndex = "999";
-    cardEl.setPointerCapture(event.pointerId);
-    cardEl.addEventListener("pointermove", onMove);
-    cardEl.addEventListener("pointerup", onUp);
-    cardEl.addEventListener("pointercancel", onUp);
-  };
-
-  cardEl.addEventListener("pointerdown", onDown);
 }
 
 // Image URLs as literals
