@@ -1,1 +1,1 @@
-Add show comparison logic
+Implement scout

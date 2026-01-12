@@ -1,4 +1,4 @@
-export function renderCards(containerElementId, cards) {
+export function renderCards(containerElementId, cards, options = {}) {
   const cardsContainer = document.getElementById(containerElementId);
   if (!cardsContainer) return;
 
@@ -19,12 +19,23 @@ export function renderCards(containerElementId, cards) {
       img.classList.add("rotated")
     }
 
+    // Mark preview cards so caller can style/identify them
+    if (card._preview) {
+      wrapper.classList.add('preview-card');
+      wrapper.dataset.preview = 'true';
+    }
+
     wrapper.append(img);
     cardsContainer.appendChild(wrapper);
 
-    wrapper.addEventListener('click', (e) => {
-      wrapper.classList.toggle('highlight');
-    });
+    // If caller provided a custom click handler, use that.
+    if (typeof options.onClick === 'function') {
+      wrapper.addEventListener('click', (e) => options.onClick(card, index, wrapper, e));
+    } else {
+      wrapper.addEventListener('click', (e) => {
+        wrapper.classList.toggle('highlight');
+      });
+    }
   });
 }
 
