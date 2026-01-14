@@ -1,6 +1,7 @@
 import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
 import { renderCards} from './cardRendering.js'
+import {StandardTurnView} from './StandardTurnView.js'
 
 class ScoutClient {
     constructor() {
@@ -8,6 +9,9 @@ class ScoutClient {
             game: Scout,
             numPlayers: 4
         });
+
+        this.initStandardTurnView()
+
         this.client.start();
         this.client.subscribe(state => this.update(state))
 
@@ -39,17 +43,6 @@ class ScoutClient {
 
             this.client.moves.scout()
         })
-
-        //Show Button
-        document.getElementById('showButton').addEventListener('click', () => {
-            const container = document.getElementById('cardContainer');
-            const selectedIndices = Array.from(container.querySelectorAll('.card.highlight'))
-                .map(el => Number(el.dataset.index))
-                .filter(n => !Number.isNaN(n));
-            const startIndex = Math.min(...selectedIndices);
-            const endIndex = Math.max(...selectedIndices);
-            this.client.moves.show(startIndex, endIndex);
-        })
     }
 
     renderScoutShow() {
@@ -58,12 +51,26 @@ class ScoutClient {
         }
     }
 
+    initStandardTurnView() {
+        this.view = new StandardTurnView()
+
+        //showButton
+        this.view.showBtn.addEventListener('click', () => {
+            let [startIndex, endIndex] = this.view.getHighlightedHandIndices()
+            this.client.moves.show(startIndex, endIndex)
+        })
+    }
+
+    initScout
+
     update(state) {
-        const activeShow = state?.G?.activeShow
-        if (Array.isArray(activeShow)) {
-            renderCards("activeShowContainer", activeShow)
+        if (this.view.name == "StandardTurnView"){
+            const activeShow = state?.G?.activeShow
+            if (Array.isArray(activeShow)) {
+                renderCards("activeShowContainer", activeShow)
+            }
+            renderCards("cardContainer", state.G.playerHands[Number(state.ctx.currentPlayer)])
         }
-        renderCards("cardContainer", state.G.playerHands[Number(state.ctx.currentPlayer)])
     }
 
 }
