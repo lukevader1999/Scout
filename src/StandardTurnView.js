@@ -72,9 +72,12 @@ export class StandardTurnView {
         return true
     }
 
-    getScoutedCardIndex() {
+    getScouteSide() {
         const highlightedElements = Array.from(this.activeShow.querySelectorAll('.card.highlight'))
         const index = highlightedElements[0].dataset.index
-        return index
+        if (index == 0) {
+            return "left"
+        }
+        return "right"
     }
 }

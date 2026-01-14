@@ -1,12 +1,16 @@
 import { renderScoutHand } from "./cardRendering"
 export class ScoutTurnView {
-    constructor(latestState, scoutedCard) {
+    constructor(latestState, scouteSide) {
+        console.log(scouteSide)
         this.name = "ScoutTurnView"
         this.latestState = latestState
-        this.scoutedCard = structuredClone(scoutedCard)
-        this.scoutedCardIndex = this.latestState.G.playerHands[Number(this.latestState.ctx.currentPlayer)].length
         this.playerHand = latestState.G.playerHands[Number(this.latestState.ctx.currentPlayer)]
+        this.scoutedCard = this.determineScoutedCard(scouteSide)
+        this.scoutedCardIndex = this.latestState.G.playerHands[Number(this.latestState.ctx.currentPlayer)].length
 
+        //
+        //HTML Logic
+        //
         let root = document.getElementById("gameContainer")
         root.innerHTML = ""
 
@@ -43,7 +47,9 @@ export class ScoutTurnView {
 
         root.appendChild(controls);
 
-        // scout move 
+        //
+        // Key Press Logic
+        //
         window.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowLeft':
@@ -60,6 +66,15 @@ export class ScoutTurnView {
                     break
             }
         })
+    }
+
+    determineScoutedCard(scouteSide) {
+        const activeShow = this.latestState.G.activeShow
+        let index = 0
+        if (scouteSide == "right"){
+            index = activeShow.length - 1
+        }
+        return structuredClone(this.latestState.G.activeShow[index])
     }
 
     moveScoutedCardLeft() {

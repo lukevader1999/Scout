@@ -25,8 +25,7 @@ class ScoutClient {
     }
 
     initScoutTurn() {
-        let scoutedCard = this.latestState.G.activeShow[this.view.getScoutedCardIndex()]
-        this.view = new ScoutTurnView(this.latestState, scoutedCard)
+        this.view = new ScoutTurnView(this.latestState, this.view.getScouteSide())
         //cancel scout button binding
         this.view.cancelBtn.addEventListener('click', () => {
             this.initStandardTurn()
@@ -51,10 +50,9 @@ class ScoutClient {
 
         //start scout button binding
         this.view.startScoutBtn.addEventListener('click', () => {
-            if (!this.view.canStartScout()){
-                return
+            if (this.view.canStartScout()){
+                this.initScoutTurn()
             }
-            this.initScoutTurn()
         })
 
         this.update()
