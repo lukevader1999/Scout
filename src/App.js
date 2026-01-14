@@ -1,7 +1,7 @@
 import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
-import { renderCards} from './cardRendering.js'
 import {StandardTurnView} from './StandardTurnView.js'
+import { ScoutTurnView } from './ScoutTurnView.js';
 
 class ScoutClient {
     constructor() {
@@ -10,69 +10,63 @@ class ScoutClient {
             numPlayers: 4
         });
 
-        this.initStandardTurnView()
-
         this.client.start();
-        this.client.subscribe(state => this.update(state))
-
-        //Scouting variables
-        this.scoutShow = []
-        this.scoutedCardIndex = -1
-        this.leftRight = 'l'
-
-        //Start Scout Button
-        document.getElementById('startScouting').addEventListener('click', () => {
-            const activeShowContainer = document.getElementById('activeShowContainer')
-            //get number of cards in the activeShowContainer
-            const numberOfCards = activeShowContainer.childElementCount
-            const highlightedElements = Array.from(container.querySelectorAll('.card.highlight'))
-            if (highlightedElements.length != 1) {return}
-            const index = highlightedElements[0].dataset.index
-            if (index != 0 && index != numberOfCards -1) {return}
-            const card = highlightedElements[0].card
-            this.scoutShow = this.client.G.playerHands[Number(state.ctx.currentPlayer)].push(card)
-            this.scoutedCardIndex = this.scoutShow.length - 1
+        this.latestState = null
+        this.client.subscribe(state => {
+            this.latestState = state
+            this.update(state)
         })
-
-        //Finish Scout Button
-        document.getElementById('finishScouting').addEventListener('click', () => {
-
-            //Clean Up
-            this.scoutShow = []
-            this.scoutedCardIndex = -1
-
-            this.client.moves.scout()
-        })
+        
+        this.initStandardTurn()
     }
 
-    renderScoutShow() {
-        if (this.scoutShow.length == 0) {
+    currentPlayer() {
+        return Number(this.latestState.ctx.currentPlayer)
+    }
+
+    initScoutTurn() {
+        let scoutedCard = this.latestState.G.activeShow[this.view.getScoutedCardIndex()]
+        this.view = new ScoutTurnView(this.latestState, scoutedCard)
+        //cancel scout button binding
+        this.view.cancelBtn.addEventListener('click', () => {
+            this.initStandardTurn()
+        })
+
+        //finish scout button binding
+        this.view.finishScoutBtn.addEventListener('click', () => {
             return
-        }
+        })
+
+        this.view.render()
     }
 
-    initStandardTurnView() {
+    initStandardTurn() {
         this.view = new StandardTurnView()
 
-        //showButton
+        //show button binding
         this.view.showBtn.addEventListener('click', () => {
             let [startIndex, endIndex] = this.view.getHighlightedHandIndices()
             this.client.moves.show(startIndex, endIndex)
         })
-    }
 
-    initScout
+        //start scout button binding
+        this.view.startScoutBtn.addEventListener('click', () => {
+            if (!this.view.canStartScout()){
+                return
+            }
+            this.initScoutTurn()
+        })
+
+        this.update()
+    }
 
     update(state) {
-        if (this.view.name == "StandardTurnView"){
-            const activeShow = state?.G?.activeShow
-            if (Array.isArray(activeShow)) {
-                renderCards("activeShowContainer", activeShow)
-            }
-            renderCards("cardContainer", state.G.playerHands[Number(state.ctx.currentPlayer)])
+        state = state || this.latestState;
+        if (this.view == null){
+            return
         }
+        this.view.render(state)
     }
-
 }
 
 const app = new ScoutClient()

@@ -29,6 +29,37 @@ export function renderCards(containerElementId, cards) {
   });
 }
 
+export function renderScoutHand(containerElementId, cards, scoutedCardIndex) {
+  const cardsContainer = document.getElementById(containerElementId);
+  if (!cardsContainer) return;
+
+  cardsContainer.className = "cardsContainer";
+  cardsContainer.innerHTML = "";
+
+  cards.forEach((card, index) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "card";
+    wrapper.style.zIndex = `${index + 1}`;
+    wrapper.dataset.index = String(index);
+    wrapper.dataset.card = card
+
+    if (index === scoutedCardIndex) {
+      wrapper.classList.add('highlight');
+    }
+
+    const img = document.createElement("img");
+    img.src = imageUrls[card.id];
+    img.className = "card-image";
+
+    if (card.rotated) {
+      img.classList.add("rotated")
+    }
+
+    wrapper.append(img);
+    cardsContainer.appendChild(wrapper);
+  });
+} 
+
 // Image URLs as literals
 const imageUrls = {
   "110": new URL("../assets/images/cards/raw/110.jpg", import.meta.url).href,
