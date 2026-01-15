@@ -7,7 +7,7 @@ class ScoutClient {
     constructor() {
         this.client = Client({ 
             game: Scout,
-            numPlayers: 4
+            numPlayers: 2
         });
 
         this.client.start();
@@ -25,7 +25,8 @@ class ScoutClient {
     }
 
     initScoutTurn() {
-        this.view = new ScoutTurnView(this.latestState, this.view.getScouteSide())
+        let scoutedSide = this.view.getScouteSide()
+        this.view = new ScoutTurnView(this.latestState, scoutedSide)
         //cancel scout button binding
         this.view.cancelBtn.addEventListener('click', () => {
             this.initStandardTurn()
@@ -33,7 +34,9 @@ class ScoutClient {
 
         //finish scout button binding
         this.view.finishScoutBtn.addEventListener('click', () => {
-            return
+            console.log("Hi")
+            this.client.moves.scout(scoutedSide, this.view.scoutedCard.rotated, this.view.scoutedCardIndex)
+            this.initStandardTurn()
         })
 
         this.view.render()

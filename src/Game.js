@@ -5,12 +5,14 @@ export const Scout = {
   setup: ({ctx}) => ({
     playerHands: initPlayerHands(ctx.numPlayers),
     hasScoutAndShow: Array(ctx.numPlayers).fill(true),
-    activeShow: NaN
+    playerPoints: Array(ctx.numPlayers).fill(0),
+    activeShow: NaN,
+    activeShowPlayer: NaN
   }),
 
   turn: {
     minMoves: 1,
-    maxMoves: 1
+    maxMoves: 2
   },
 
   moves: {
@@ -22,18 +24,47 @@ export const Scout = {
       if (!showIsBetter(show, G.activeShow)){
         return INVALID_MOVE
       }
+      const points = G.activeShow != null ? G.activeShow.length : 0
+      G.playerPoints[playerID] += points
       G.activeShow = show
+      G.activeShowPlayer = playerID
       G.playerHands[playerID].splice(startIndex, endIndex - startIndex + 1)
     },
 
-    scout: ({G, playerID}, leftRight, rotate, insertIndex) => {
-      let scoutedCardIndex = leftRight == "l" ? 0 : -1
+    scout: ({G, playerID}, leftRight, rotated, insertIndex) => {
+      let scoutedCardIndex = leftRight == "l" ? 0 : G.activeShow.length-1
       let scoutedCard = G.activeShow[scoutedCardIndex]
-      if (rotate) {
-        scoutedCard.rotated = !scoutedCard.rotated
-      }
+      scoutedCard.rotated = rotated
       G.activeShow.splice(scoutedCardIndex, 1)
       G.playerHands[playerID].splice(insertIndex, 0, scoutedCard)
+
+      G.playerPoints[G.activeShowPlayer] += 1
+    }
+  },
+
+  // Ends the game if this returns anything.
+  // The return value is available in `ctx.gameover`.
+  endIf: ({ G, ctx }) => {
+    if(onePlayerHasNoCardsInHand(G, ctx) != null) {
+      return onePlayerHasNoCardsInHand(G, ctx)
+    }
+
+    if(nextPlayerPossesActiveShow(G, ctx) != null) {
+      return G.activeShowPlayer
+    }
+  },
+}
+
+function nextPlayerPossesActiveShow(G, ctx){
+  if ((ctx.activePlayer + 1)%ctx.numPlayers == G.activeShowPlayer){
+    return true
+  }
+}
+
+function onePlayerHasNoCardsInHand(G, ctx){
+  for (let i=0; i<ctx.numPlayers; i++) {
+    if (G.playerHands[i].length) {
+      return i
     }
   }
 }
