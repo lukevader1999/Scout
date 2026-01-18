@@ -7,7 +7,7 @@ class ScoutClient {
     constructor() {
         this.client = Client({ 
             game: Scout,
-            numPlayers: 2
+            numPlayers: 4
         });
 
         this.client.start();
