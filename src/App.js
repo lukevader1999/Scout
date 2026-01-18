@@ -2,6 +2,7 @@ import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
 import {StandardTurnView} from './StandardTurnView.js'
 import { ScoutTurnView } from './ScoutTurnView.js';
+import { drawCards } from './CanvasTest.js'
 
 class ScoutClient {
     constructor() {
@@ -17,7 +18,7 @@ class ScoutClient {
             this.update(state)
         })
         
-        this.initStandardTurn()
+        drawCards(this.latestState.G.playerHands[0]) 
     }
 
     currentPlayer() {
