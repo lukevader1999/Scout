@@ -1,8 +1,6 @@
 import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
-import {StandardTurnView} from './StandardTurnView.js'
-import { ScoutTurnView } from './ScoutTurnView.js';
-import { drawCards } from './CanvasTest.js'
+import { initStandardTurn } from './initStandardTurn.js';
 
 class ScoutClient {
     constructor() {
@@ -15,60 +13,15 @@ class ScoutClient {
         this.latestState = null
         this.client.subscribe(state => {
             this.latestState = state
-            this.update(state)
         })
         
-        drawCards(this.latestState.G.playerHands[0]) 
+        initStandardTurn(this.latestState.G.playerHands[0])
     }
 
     currentPlayer() {
         return Number(this.latestState.ctx.currentPlayer)
     }
 
-    initScoutTurn() {
-        let scoutedSide = this.view.getScouteSide()
-        this.view = new ScoutTurnView(this.latestState, scoutedSide)
-        //cancel scout button binding
-        this.view.cancelBtn.addEventListener('click', () => {
-            this.initStandardTurn()
-        })
-
-        //finish scout button binding
-        this.view.finishScoutBtn.addEventListener('click', () => {
-            console.log("Hi")
-            this.client.moves.scout(scoutedSide, this.view.scoutedCard.rotated, this.view.scoutedCardIndex)
-            this.initStandardTurn()
-        })
-
-        this.view.render()
-    }
-
-    initStandardTurn() {
-        this.view = new StandardTurnView()
-
-        //show button binding
-        this.view.showBtn.addEventListener('click', () => {
-            let [startIndex, endIndex] = this.view.getHighlightedHandIndices()
-            this.client.moves.show(startIndex, endIndex)
-        })
-
-        //start scout button binding
-        this.view.startScoutBtn.addEventListener('click', () => {
-            if (this.view.canStartScout()){
-                this.initScoutTurn()
-            }
-        })
-
-        this.update()
-    }
-
-    update(state) {
-        state = state || this.latestState;
-        if (this.view == null){
-            return
-        }
-        this.view.render(state)
-    }
 }
 
 const app = new ScoutClient()
