@@ -4,6 +4,10 @@ import { loadImageMap } from "./loadImageMap";
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d");
 const imageMap = await loadImageMap()
+
+const X_HAND_AREA = 80
+const Y_HAND_AREA = 700
+
 export const CARD_WIDTH = 150
 export const CARD_HEIGHT = scaledHeight(imageMap.get("12"), CARD_WIDTH)
 
@@ -11,8 +15,8 @@ function scaledHeight(img, scaledWidth) {
     return img.naturalHeight * scaledWidth / img.naturalWidth
 }
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+function clearHandArea() {
+    ctx.clearRect(X_HAND_AREA, Y_HAND_AREA, canvas.width, CARD_HEIGHT)
 }
 
 function drawNormalBorder(x, y, width, height) {
@@ -58,8 +62,8 @@ function drawCardRotated(id, x, y, highlighted=false) {
     }
 }
 
-export function drawCards(cards, highlightedIndices = [], handlers = [], x=80, y=700) {
-    clearCanvas()
+export function drawCards(cards, highlightedIndices = [], x=X_HAND_AREA, y=Y_HAND_AREA) {
+    clearHandArea()
     const offset = CARD_WIDTH + 8
     let movingX = x
     for(let i = 0; i< cards.length; i++) {
@@ -79,8 +83,8 @@ export function drawCards(cards, highlightedIndices = [], handlers = [], x=80, y
     }
 }
 
-export function drawCardsWithHandlers(cards, handlers, x=80, y=700) {
-    clearCanvas()
+export function drawCardsWithHandlers(cards, handlers, x=X_HAND_AREA, y=Y_HAND_AREA) {
+    clearHandArea()
     const offset = CARD_WIDTH + 8
     let movingX = x
     for(let i = 0; i< cards.length; i++) {

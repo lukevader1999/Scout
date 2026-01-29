@@ -1,1 +1,1 @@
-Add show comparison logic
+Add button to scout selection
