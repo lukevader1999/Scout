@@ -1,11 +1,12 @@
 import { drawCards, drawCardsWithHandlers } from "./drawCards"
 import { drawShowButton } from "./drawButton"
-import { client } from "./App"
 
 const X_HAND = 80
 const Y_HAND = 700
 const X_SHOW_BUTTON = 400
 const Y_SHOW_BUTTON = 950
+
+const debug = true
 
 let HAND
 let HIGHLIGHTED
@@ -23,36 +24,43 @@ export function initStandardTurn(client) {
         HAND[i].HIGHLIGHTED = false
     }
     drawCardsWithHandlers(HAND, handlers)
-    drawShowButton(X_SHOW_BUTTON, Y_SHOW_BUTTON, showHandler)
+    drawShowButton(X_SHOW_BUTTON, Y_SHOW_BUTTON, showHandler(client))
 }
 
-function showHandler() {
-    let first_highlight_index = -1
-    let last_highlight_index = -1
+function showHandler(client) {
+    return () => {
 
-    for (let i = 0; i < HIGHLIGHTED.length; i++) {
-        if (HIGHLIGHTED[i]) {
-            first_highlight_index = i
-            break
+        if (debug) {
+            console.log("Show Button pressed")
         }
-    }
-    
-    for (let i = HIGHLIGHTED.length - 1; i >= 0; i--) {
-        if (HIGHLIGHTED[i]) {
-            last_highlight_index = i
+
+        let first_highlight_index = -1
+        let last_highlight_index = -1
+
+        for (let i = 0; i < HIGHLIGHTED.length; i++) {
+            if (HIGHLIGHTED[i]) {
+                first_highlight_index = i
+                break
+            }
         }
-    }
-
-    if (first_highlight_index==-1 && last_highlight_index==-1) {
-        console.log("Cant show if no cards are selected")
-        return
-    }
-
-    for (let i = first_highlight_index; i <= last_highlight_index; i++) {
-        if (!HIGHLIGHTED[i]) {
-            console.log("Cant show a selection of non connected cards")
+        
+        for (let i = HIGHLIGHTED.length - 1; i >= 0; i--) {
+            if (HIGHLIGHTED[i]) {
+                last_highlight_index = i
+            }
         }
-    }
 
-    client.client.moves.show(first_highlight_index, last_highlight_index)
+        if (first_highlight_index==-1 && last_highlight_index==-1) {
+            console.log("Cant show if no cards are selected")
+            return
+        }
+
+        for (let i = first_highlight_index; i <= last_highlight_index; i++) {
+            if (!HIGHLIGHTED[i]) {
+                console.log("Cant show a selection of non connected cards")
+            }
+        }
+
+        client.client.moves.show(first_highlight_index, last_highlight_index)
+    }
 }

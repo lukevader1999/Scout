@@ -1,4 +1,4 @@
-import { onClick } from "./onClick";
+import { onClick, resetOnClicks } from "./onClick";
 import { loadImageMap } from "./loadImageMap";
 
 const canvas = document.getElementById("canvas")
@@ -7,6 +7,7 @@ const imageMap = await loadImageMap()
 
 const X_HAND_AREA = 80
 const Y_HAND_AREA = 700
+const debug = true
 
 export const CARD_WIDTH = 150
 export const CARD_HEIGHT = scaledHeight(imageMap.get("12"), CARD_WIDTH)

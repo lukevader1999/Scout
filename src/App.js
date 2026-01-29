@@ -2,6 +2,8 @@ import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
 import { initStandardTurn } from './initStandardTurn.js';
 
+const debug = true
+
 class ScoutClient {
     constructor() {
         this.client = Client({ 
@@ -13,9 +15,11 @@ class ScoutClient {
         this.latestState = null
         this.client.subscribe(state => {
             this.latestState = state
+            if (debug) {
+                console.log("Updating state")
+            }
+            this.renderState()
         })
-        
-        initStandardTurn(this)
     }
 
     currentPlayer() {
@@ -24,6 +28,10 @@ class ScoutClient {
 
     currentPlayerHand() {
         return this.latestState.G.playerHands[this.currentPlayer()]
+    }
+
+    renderState() {
+        initStandardTurn(this)
     }
 
 }

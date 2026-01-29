@@ -32,7 +32,7 @@ export function resetOnClicks() {
 const elemLeft = canvas.offsetLeft + canvas.clientLeft;
 const elemTop = canvas.offsetTop + canvas.clientTop;
 
-const debug = true;
+const debug = false;
 
 canvas.addEventListener(
   "click",
