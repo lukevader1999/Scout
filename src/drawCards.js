@@ -16,7 +16,7 @@ function scaledHeight(img, scaledWidth) {
 }
 
 function clearHandArea() {
-    ctx.clearRect(X_HAND_AREA, Y_HAND_AREA, canvas.width, CARD_HEIGHT)
+    ctx.clearRect(X_HAND_AREA-5, Y_HAND_AREA-5, canvas.width, CARD_HEIGHT+10)
 }
 
 function drawNormalBorder(x, y, width, height) {

@@ -1,10 +1,13 @@
+import { onClick } from "./onClick";
+
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext("2d");
 
-export function drawShowButton(x, y, width=86, height=35) {
+export function drawShowButton(x, y, handler, width=86, height=35) {
     ctx.lineWidth = 3
     ctx.strokeStyle = 'rgba(99, 69, 35, 1)'
     ctx.strokeRect(x, y, width, height)
+    onClick(x, y, width, height, handler)
     ctx.strokeStyle = 'rgba(0,0,0,1)'
     ctx.lineWidth = 15
     ctx.font = "30px sans-serif"

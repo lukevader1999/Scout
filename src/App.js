@@ -15,13 +15,17 @@ class ScoutClient {
             this.latestState = state
         })
         
-        initStandardTurn(this.latestState.G.playerHands[0])
+        initStandardTurn(this)
     }
 
     currentPlayer() {
         return Number(this.latestState.ctx.currentPlayer)
     }
 
+    currentPlayerHand() {
+        return this.latestState.G.playerHands[this.currentPlayer()]
+    }
+
 }
 
-const app = new ScoutClient()
+export const client = new ScoutClient()

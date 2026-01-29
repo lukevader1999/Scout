@@ -1,1 +1,0 @@
-Add button to scout selection
