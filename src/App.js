@@ -1,6 +1,7 @@
 import { Client } from 'boardgame.io/client';
 import { Scout } from './Game.js';
 import { initStandardTurn } from './initStandardTurn.js';
+import { drawActiveShow } from './drawCards.js';
 
 const debug = true
 
@@ -32,6 +33,9 @@ class ScoutClient {
 
     renderState() {
         initStandardTurn(this)
+        if (this.latestState.G.activeShow) {
+            drawActiveShow(this.latestState.G.activeShow)
+        }
     }
 
 }

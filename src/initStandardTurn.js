@@ -1,5 +1,6 @@
 import { drawCards, drawCardsWithHandlers } from "./drawCards"
 import { drawShowButton } from "./drawButton"
+import { resetOnClicks } from "./onClick"
 
 const X_HAND = 80
 const Y_HAND = 700
@@ -12,6 +13,7 @@ let HAND
 let HIGHLIGHTED
 
 export function initStandardTurn(client) {
+    resetOnClicks()
     HAND = structuredClone(client.currentPlayerHand())
     HIGHLIGHTED = new Array(HAND.length).fill(false)
     let handlers = []
@@ -47,6 +49,7 @@ function showHandler(client) {
         for (let i = HIGHLIGHTED.length - 1; i >= 0; i--) {
             if (HIGHLIGHTED[i]) {
                 last_highlight_index = i
+                break
             }
         }
 
